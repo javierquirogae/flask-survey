@@ -1,15 +1,11 @@
-{% extends 'base.html'  %}
-{% block title %}Survey{% endblock %}
-
+{% extends 'base.html' %}
 {% block content %}
-<h1>Welcome to the survey !</h1>
-    <form action="/survey">
-        <h2>Please choose the type of survey</h2>
-        <input type="radio" id="satisfaction" name="name" value="satisfaction">
-        <label for="satisfaction">Satisfaction survey</label><br>
-        <input type="radio" id="personality" name="name" value="personality">
-        <label for="personality">Personality survey</label><br>
-        <p>Click the button to start !</p>
-        <button>Start!</button>
-    </form>
+<h1>{{ survey.title }}</h1>
+<p>
+  {{ survey.instructions }}
+</p>
+
+<form action="/begin" method="POST">
+  <button>Start!</button>
+</form>
 {% endblock %}

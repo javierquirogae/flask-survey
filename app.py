@@ -1,52 +1,71 @@
 from flask import Flask, request, render_template,  redirect, flash,  jsonify, session
-from random import randint,  choice, sample
 from flask_debugtoolbar import DebugToolbarExtension
-from surveys import surveys
+from surveys import satisfaction_survey as survey
 
 app = Flask(__name__)
-
-app.config['SECRET_KEY'] = "chickenzarecool21837"
+app.config['SECRET_KEY'] = "never-tell!"
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 debug = DebugToolbarExtension(app)
 
-NAME = []
+RESPONSES_KEY = "responses"
 
-ANSWERS = []
+@app.route("/")
+def show_survey_start():
+    """Select a survey."""
+    return render_template("start.html", survey=survey)
 
-@app.route('/')
-def start_page():
-    """Shows start"""
-    return render_template('start.html')
+@app.route("/begin", methods=["POST"])
+def start_survey():
+    """Clear the session of responses."""
 
-@app.route('/survey', methods=["POST"])
-def survey_choice():
-    NAME.append = request.args['name']
-    return redirect('/question_1')
+    session[RESPONSES_KEY] = []
 
-@app.route('/question_1')
-def question_1_page():
-    """Shows question 1"""
-    name = NAME[0]
-    s = surveys[name]
-    long_title = s.title
-    instructions = s.instructions
-    q = s.questions[0]
-    question = q.question
-    choices = q.choices
-    return render_template('question_1.html',title=name, question=question, long_title=long_title, instructions=instructions, choices=choices)
+    return redirect("/questions/0")
 
-@app.route('/question_1/answer', methods=["POST"])
-def add_answer():
-    ANSWERS.append = request.args['answer']
-    return redirect('/question_2')
+@app.route("/questions/<int:qid>")
+def show_question(qid):
+    """Display current question."""
+    responses = session.get(RESPONSES_KEY)
 
-@app.route('/question_2')
-def question_2_page():
-    """Shows question 2"""
-    s = surveys[NAME[0]]
-    long_title = s.title
-    instructions = s.instructions
-    q = s.questions[2]
-    question = q.question
-    choices = q.choices
-    return render_template('question_1.html',title=name, question=question, long_title=long_title, instructions=instructions, choices=choices)
+    if (responses is None):
+        # trying to access question page too soon
+        return redirect("/")
+
+    if (len(responses) == len(survey.questions)):
+        # They've answered all the questions! Thank them.
+        return redirect("/complete")
+
+    if (len(responses) != qid):
+        # Trying to access questions out of order.
+        flash(f"Invalid question id: {qid}.")
+        return redirect(f"/questions/{len(responses)}")
+
+    question = survey.questions[qid]
+    return render_template(
+        "question.html", question_num=qid, question=question)
+
+
+@app.route("/answer", methods=["POST"])
+def handle_question():
+    """Save response and redirect to next question."""
+
+    # get the response choice
+    choice = request.form['answer']
+
+    # add this response to the session
+    responses = session[RESPONSES_KEY]
+    responses.append(choice)
+    session[RESPONSES_KEY] = responses
+
+    if (len(responses) == len(survey.questions)):
+        # They've answered all the questions! Thank them.
+        return redirect("/complete")
+
+    else:
+        return redirect(f"/questions/{len(responses)}")
+
+@app.route("/complete")
+def complete():
+    """Survey complete. Show completion page."""
+
+    return render_template("complete.html")
