@@ -1,0 +1,15 @@
+{% extends 'base.html'  %}
+{% block title %}Survey{% endblock %}
+
+{% block content %}
+<h1>Welcome to the survey !</h1>
+    <form action="/question_1">
+        <h2>Please choose the type of survey</h2>
+        <input type="radio" id="satisfaction" name="name" value="satisfaction">
+        <label for="satisfaction">Satisfaction survey</label><br>
+        <input type="radio" id="personality" name="name" value="personality">
+        <label for="personality">Personality survey</label><br>
+        <p>Click the button to start !</p>
+        <button>Start!</button>
+    </form>
+{% endblock %}

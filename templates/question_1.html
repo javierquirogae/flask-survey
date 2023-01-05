@@ -1,0 +1,10 @@
+{% extends 'base.html'  %}
+{% block title %}{{title}}{% endblock %}
+
+{% block content %}
+<h1>Question 1 :</h1>
+<p>{{question}}</p>
+<form action="/question_2">
+    <button>Go to next question!</button>
+</form>
+{% endblock %}
