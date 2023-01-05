@@ -9,16 +9,44 @@ app.config['SECRET_KEY'] = "chickenzarecool21837"
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 debug = DebugToolbarExtension(app)
 
-MOVIES = {'Amadeus', 'Chicken Run', 'Dances With Wolves'}
+NAME = []
+
+ANSWERS = []
 
 @app.route('/')
 def start_page():
     """Shows start"""
     return render_template('start.html')
 
+@app.route('/survey', methods=["POST"])
+def survey_choice():
+    NAME.append = request.args['name']
+    return redirect('/question_1')
+
 @app.route('/question_1')
 def question_1_page():
-    """Shows question 1t"""
-    name = request.args['name']
-    question = surveys[name].questions[0].question
-    return render_template('question_1.html',title=name, question=question)
+    """Shows question 1"""
+    name = NAME[0]
+    s = surveys[name]
+    long_title = s.title
+    instructions = s.instructions
+    q = s.questions[0]
+    question = q.question
+    choices = q.choices
+    return render_template('question_1.html',title=name, question=question, long_title=long_title, instructions=instructions, choices=choices)
+
+@app.route('/question_1/answer', methods=["POST"])
+def add_answer():
+    ANSWERS.append = request.args['answer']
+    return redirect('/question_2')
+
+@app.route('/question_2')
+def question_2_page():
+    """Shows question 2"""
+    s = surveys[NAME[0]]
+    long_title = s.title
+    instructions = s.instructions
+    q = s.questions[2]
+    question = q.question
+    choices = q.choices
+    return render_template('question_1.html',title=name, question=question, long_title=long_title, instructions=instructions, choices=choices)
